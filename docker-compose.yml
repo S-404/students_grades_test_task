@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  database:
+    image: postgres
+    environment:
+      POSTGRES_DB: "${POSTGRES_DB}"
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    env_file: .env
+    healthcheck:
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'" ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+  app:
+    build: ./
+    depends_on:
+      database:
+        condition: service_healthy
+    env_file: .env
+    command: sh -c "npx sequelize-cli db:migrate && node index.js"
+    ports:
+      - "${PORT}:${PORT}"
