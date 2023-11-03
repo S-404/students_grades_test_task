@@ -1,6 +1,12 @@
-class GradeService {
-    async create() {
+const {GradesModel, StudentsModel} = require('../database/models')
 
+class GradeService {
+    async create({personalCode, grade, subject}) {
+        return await GradesModel.create({
+            personalCode,
+            grade,
+            subject
+        })
     }
 
     async getAll(page = 1, limit = 100) {
