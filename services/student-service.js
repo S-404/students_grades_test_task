@@ -16,7 +16,12 @@ class StudentService {
     }
 
     async getOne(personalCode) {
-        return await StudentsModel.findOne({where: {personalCode}})
+        const student = await StudentsModel.findOne({where: {personalCode}})
+        if (!student) {
+            throw BadRequest(`student ${personalCode} does not exist`)
+        }
+
+        return student
     }
 
 }

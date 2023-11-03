@@ -1,6 +1,5 @@
 const gradeService = require('../services/grade-service')
 const studentService = require('../services/student-service')
-const subjectService = require('../services/subject-service')
 
 class GradeController {
 
@@ -18,8 +17,8 @@ class GradeController {
         try {
             const {personalCode} = req.params
             const student = await studentService.getOne(personalCode)
-            const subjects = await subjectService
-            const data = await gradeService.getStatistic(student)
+            const statistic = await gradeService.getStatistic(student)
+            return res.json(statistic)
         } catch (e) {
             next(e)
         }
