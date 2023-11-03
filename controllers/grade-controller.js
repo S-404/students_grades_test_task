@@ -6,8 +6,8 @@ class GradeController {
 
     async getAll(req, res, next) {
         try {
-            const {page, limit} = req.query
-            const data = await gradeService.getAll(page, limit)
+            const {offset, limit} = req.query
+            const data = await gradeService.getAll(offset, limit)
             return res.json(data)
         } catch (e) {
             next(e)

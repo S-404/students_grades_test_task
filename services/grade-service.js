@@ -9,8 +9,27 @@ class GradeService {
         })
     }
 
-    async getAll(page = 1, limit = 100) {
-        return {page, limit}
+    async getAll(offset = 0, limit ) {
+        //TODO pagination
+        return await GradesModel.findAll({
+            attributes: [
+                'id',
+                ['createdAt', 'date'], //TODO check iso format
+                'subject',
+                'grade'
+            ],
+            include: [{
+                model: StudentsModel,
+                as: 'student',
+                required: false,
+                attributes: ['personalCode', 'name', 'lastName']
+            }],
+            limit,
+            offset,
+            order: [
+                ['createdAt', 'ASC']
+            ]
+        })
     }
 
     async getStatistic(student) {
