@@ -19,9 +19,16 @@ module.exports = (sequelize, DataTypes) => {
         personalCode: DataTypes.STRING,
         grade: DataTypes.INTEGER,
         subject: DataTypes.STRING,
+        date: {
+            type: DataTypes.DATE,
+            get() {
+                return new Date(this.dataValues.date).toISOString()
+            },
+        }
     }, {
         sequelize,
         modelName: 'Grade',
+        timestamps: false
     });
     return Grade;
 };

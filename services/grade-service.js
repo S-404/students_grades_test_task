@@ -1,4 +1,4 @@
-const {GradesModel, StudentsModel, SubjectsModel} = require('../database/models')
+const {GradesModel, StudentsModel, sequelize} = require('../database/models')
 
 class GradeService {
     async create({personalCode, grade, subject}) {
@@ -14,7 +14,7 @@ class GradeService {
         return await GradesModel.findAll({
             attributes: [
                 'id',
-                ['createdAt', 'date'], //TODO check iso format
+                'date',
                 'subject',
                 'grade'
             ],
@@ -27,48 +27,31 @@ class GradeService {
             limit,
             offset,
             order: [
-                ['createdAt', 'ASC']
+                ['date', 'ASC']
             ]
         })
     }
 
     async getStatistic(student) {
 
-        const grades = await SubjectsModel.findAll({
-            attributes: ['subject'],
-            include: [{
-                model: GradesModel,
-                as: 'grades',
-                required: false,
-                attributes: ['grade'],
-                where: {
-                    personalCode: student.personalCode
-                }
-            }]
-        })
-
-        const statistic = grades.reduce((acc, subject) => {
-
-            const stats = subject.grades.reduce((acc, curr) => {
-                acc.min = Math.min(acc.min ?? curr.grade, curr.grade)
-                acc.max = Math.max(acc.max, curr.grade)
-                acc.sum += curr.grade
-                return acc
-            }, {min: null, max: null, sum: null})
-
-            const subjectStat = {
-                subject: subject.subject,
-                maxGrade: stats.max ?? 0,
-                minGrade: stats.min ?? 0,
-                avgGrade: subject.grades.length ? stats.sum / subject.grades.length : 0,
-                totalGrades: subject.grades.length
-            }
-            acc.push(subjectStat)
-            return acc
-        }, [])
-
-
         const {personalCode, lastName, name} = student
+
+        const statisticQueryResult = await sequelize.query(`
+                SELECT 
+                    Subjects."subject", 
+                    coalesce(max(Grades."grade"), 0) as "maxGrade",
+                    coalesce(min(Grades."grade"), 0) as "minGrade",
+                    coalesce(avg(Grades."grade")::float, 0) as "avgGrade",
+                    count(Grades."grade")::int as "totalGrades"
+                FROM public."Subjects" as Subjects
+                LEFT JOIN (
+                    SELECT "personalCode", "grade", "subject"
+                    FROM "Grades" 
+                    WHERE "personalCode" = '${personalCode}'
+                    ) as Grades
+                ON Subjects."subject" = Grades."subject"
+                GROUP BY Subjects."subject"
+        `)
 
         return {
             student: {
@@ -76,9 +59,8 @@ class GradeService {
                 lastName,
                 name
             },
-            statistic
+            statistic: statisticQueryResult[0]
         }
-
     }
 }
 
