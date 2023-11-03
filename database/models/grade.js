@@ -11,17 +11,14 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             this.belongsTo(models.StudentsModel, {foreignKey: 'personalCode', as: 'student'})
-            this.belongsTo(models.SubjectsModel, {foreignKey: 'subject'})
+            this.belongsTo(models.SubjectsModel, {foreignKey: 'subject', as: 'subjects'})
         }
     }
 
     Grade.init({
         personalCode: DataTypes.STRING,
         grade: DataTypes.INTEGER,
-        subject: {
-            type: DataTypes.STRING,
-            primaryKey: true,
-        },
+        subject: DataTypes.STRING,
     }, {
         sequelize,
         modelName: 'Grade',

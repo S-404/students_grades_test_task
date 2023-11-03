@@ -15,7 +15,10 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     Subject.init({
-        subject: DataTypes.STRING
+        subject: {
+            type: DataTypes.STRING,
+            primaryKey: true
+        }
     }, {
         sequelize,
         modelName: 'Subject',

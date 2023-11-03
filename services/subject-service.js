@@ -7,7 +7,7 @@ class SubjectService {
         if (candidate) {
             throw BadRequest(`subject ${subject} already exists`)
         }
-        
+
         return await SubjectsModel.create({subject})
     }
 
@@ -15,6 +15,9 @@ class SubjectService {
         return await SubjectsModel.findOne({where: {subject}})
     }
 
+    async getAll(){
+        return await SubjectsModel.findAll()
+    }
 }
 
 module.exports = new SubjectService()
