@@ -3,7 +3,7 @@ const {BadRequest} = require("../exceptions/api-error");
 
 class StudentService {
     async create({personalCode, name, lastName}) {
-        const candidate = await this.getOne(personalCode)
+        const candidate = await this.isExist(personalCode)
         if (candidate) {
             throw BadRequest(`student ${personalCode} already exists`)
         }
@@ -13,6 +13,11 @@ class StudentService {
             name,
             lastName
         })
+    }
+
+    async isExist(personalCode){
+        const student = await StudentsModel.findOne({where: {personalCode}})
+        return !!student
     }
 
     async getOne(personalCode) {

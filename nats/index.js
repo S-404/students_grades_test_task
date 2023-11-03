@@ -36,7 +36,12 @@ class NatsClient {
             // console.log(`[${sub.getProcessed()}]: ${sc.decode(message.data)}`);
             const data = this.jc.decode(message.data)
             if (data?.data) {
-                await this.#syncData(data.data)
+                try{
+                    await this.#syncData(data.data)
+                }catch (e){
+                    LOG("syncData error", "smth went wrong")
+                }
+
             }
         }
     }
@@ -47,12 +52,14 @@ class NatsClient {
         const subjectCandidate = await subjectService.getOne(subject)
         if (!subjectCandidate) {
             await subjectService.create(subject)
+            LOG("created subject", subject)
         }
 
-        const studentCandidate = await studentService.getOne(personalCode)
-        if (!studentCandidate) {
+        const studentIsExist = await studentService.isExist(personalCode)
+        if (!studentIsExist) {
             const studentData = await this.#fetchStudentData(personalCode)
             await studentService.create(studentData)
+            LOG("created student", studentData)
         }
 
         await gradeService.create(data)

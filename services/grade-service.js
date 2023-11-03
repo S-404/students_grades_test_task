@@ -10,7 +10,7 @@ class GradeService {
     }
 
     async getAll(offset = 0, limit) {
-        //TODO pagination
+
         return await GradesModel.findAll({
             attributes: [
                 'id',
