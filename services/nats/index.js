@@ -1,13 +1,14 @@
+require('dotenv').config()
 const {connect, StringCodec, JSONCodec} = require('nats');
-const subjectService = require('../services/subject-service')
-const studentService = require('../services/student-service')
-const gradeService = require('../services/grade-service')
-const LOG = require("../utils/log");
+const subjectService = require('../subject-service')
+const studentService = require('../student-service')
+const gradeService = require('../grade-service')
+const LOG = require("../../utils/log");
 
 
-const subject = 'students.v1.graded';
-const requestSubj = 'students.v1.get'
-const servers = '192.162.246.63:4222';
+const GRADES_SUBSCRIBE_SUBJECT = 'students.v1.graded';
+const STUDENT_REQUEST_SUBJECT = 'students.v1.get'
+const NATS_SERVER = process.env.NATS_SERVER;
 
 class NatsClient {
     natsConnection
@@ -17,7 +18,7 @@ class NatsClient {
     //https://www.npmjs.com/package/nats#publish-and-subscribe
     async init() {
         try {
-            this.natsConnection = await connect({servers});
+            this.natsConnection = await connect({servers: NATS_SERVER});
             this.sc = StringCodec();
             this.jc = JSONCodec()
 
@@ -30,15 +31,14 @@ class NatsClient {
     }
 
     async #subscribe() {
-        const sub = this.natsConnection.subscribe(subject);
+        const sub = this.natsConnection.subscribe(GRADES_SUBSCRIBE_SUBJECT);
 
         for await (const message of sub) {
-            // console.log(`[${sub.getProcessed()}]: ${sc.decode(message.data)}`);
             const data = this.jc.decode(message.data)
             if (data?.data) {
-                try{
+                try {
                     await this.#syncData(data.data)
-                }catch (e){
+                } catch (e) {
                     LOG("syncData error", "smth went wrong")
                 }
 
@@ -69,13 +69,22 @@ class NatsClient {
 
 
     async #fetchStudentData(personalCode) {
+        const unknownStudent = {personalCode, name: "unknown", lastName: "unknown"}
+
         try {
-            const req = await this.natsConnection.request(requestSubj, this.jc.encode({personalCode}), {timeout: 1000})
+            const req = await this.natsConnection.request(
+                STUDENT_REQUEST_SUBJECT, this.jc.encode({personalCode}), {timeout: 2000}
+            )
             const data = this.jc.decode(req.data)
-            return data?.data
+
+            if ("error" in data) {
+                LOG(`fetchStudentData ${personalCode} with error`, data.error)
+            }
+
+            return data?.data ?? unknownStudent
         } catch (e) {
             LOG(`fetchStudentData ${personalCode} with error`, e)
-            return {personalCode, name: "", lastName: ""}
+            return unknownStudent
         }
     }
 

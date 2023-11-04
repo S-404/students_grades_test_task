@@ -1,7 +1,7 @@
 const express = require('express')
 require('dotenv').config()
 
-const natsClient = require('./nats/index')
+const natsClient = require('./services/nats/index')
 const apiErrorMiddleware = require('./middlewares/error-middleware')
 const router = require('./routes/index')
 const PORT = process.env.PORT
