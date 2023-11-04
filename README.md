@@ -1,6 +1,6 @@
 # студенты и оценки . тестовое задание
 
-описание задания в файле TASK_description.md
+описание задания в файле <a href="https://github.com/S-404/students_grades_test_task/blob/master/TASK_description.md" target="_blank">TASK_description.md</a>
 
 ## подготовка .env файла
 
