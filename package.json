@@ -9,8 +9,7 @@
   "author": "andrey_sudarev",
   "license": "ISC",
   "devDependencies": {
-    "nodemon": "^3.0.1",
-    "typescript": "^5.2.2"
+    "nodemon": "^3.0.1"
   },
   "dependencies": {
     "dotenv": "^16.3.1",
