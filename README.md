@@ -62,6 +62,10 @@
     limit?: number;
     offset?: number;
 
+пример запроса:
+
+    http://localhost:8080/log?limit=5&offset=2
+
 результат :
 
     [
@@ -80,6 +84,10 @@
 
 
 ### <i style='color: green'>get</i> /statistic/:personalCode
+
+пример запроса:
+
+    http://localhost:8080/statistic/2412BA923438
 
 Результат:
 
